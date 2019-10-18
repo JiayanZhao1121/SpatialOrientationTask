@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class SwitchSOTQuestions : MonoBehaviour {
     public GameObject SP;
-    public GameObject EQ;
     public GameObject Q1;
     public GameObject Q2;
     public GameObject Q3;
@@ -20,8 +19,11 @@ public class SwitchSOTQuestions : MonoBehaviour {
     public GameObject Q11;
     public GameObject Q12;
 
+    public GameObject Canvas1;
+
     public GameObject LineDraw;
-    public float timeLimit = 420f;
+    public bool shouldLineDrawActive = false;
+    public float timeLimit = 300f;
     // public GameObject enterParticipantNameGameobject;
     public Text ParticipantNameText;
     private int pointingAngle;
@@ -29,6 +31,10 @@ public class SwitchSOTQuestions : MonoBehaviour {
     public Text TimerText;
     private float startTime;
     private int countForTimer;
+    public GameObject canvas;
+    public float delayTime = 1f;
+    public int finishedRound = 0;
+    public int totalAngularError = 0; 
     private void Start()
     {
         startTime = 0f;
@@ -36,8 +42,8 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     private void Update()
     {
-        
-        if (SP.activeSelf || EQ.activeSelf)
+
+        if (!shouldLineDrawActive)
         {
             LineDraw.SetActive(false);
         }
@@ -51,6 +57,11 @@ public class SwitchSOTQuestions : MonoBehaviour {
             startTime = Time.time;
             countForTimer++;
         }
+       
+        if (canvas.activeSelf)
+        {
+
+        
         if (countForTimer != 0)
         {
             float remainTime = timeLimit + 0.99f - Time.time + startTime;
@@ -58,7 +69,7 @@ public class SwitchSOTQuestions : MonoBehaviour {
             int seconds = (int)remainTime - (min * 60);
             if (seconds < 10)
             {
-            TimerText.text = min.ToString() + " : " + "0" + seconds.ToString();
+                TimerText.text = min.ToString() + " : " + "0" + seconds.ToString();
             }
             else
             {
@@ -66,28 +77,152 @@ public class SwitchSOTQuestions : MonoBehaviour {
             }
             if (min == 0 && seconds < 1)
             {
-               // UnityEditor.EditorApplication.isPlaying = false;
+                    //string filePath = @"Assets/Resource/SOT_saved_data.csv";
+                    string filePath =  Application.dataPath + "/ExperimentData/SOT_saved_data.csv"; 
+
+                    for (int i = finishedRound+1; i < 13; i++)
+                    {
+                        
+                       
+                        File.AppendAllText(filePath, ParticipantNameText.text
+         + "," + i.ToString() + "," +
+        "Null"+ "," + "Null" + ","
+       + "Null" + "\n");
+                    }
+                   
+                    File.AppendAllText(filePath, ParticipantNameText.text
+      + "," + "Finished round" + "," +
+      finishedRound.ToString() + "," + "Average" + ","
+    + (totalAngularError/finishedRound).ToString() + "\n");
+
+                  //  UnityEditor.EditorApplication.isPlaying = false;
                 Application.Quit();
             }
 
         }
+        }
+        else
+        {
+            startTime = startTime + Time.deltaTime;
+        }
+        
     }
-    public void SPToEQ()
+    public void StartPageToExample()
     {
         
         if (ParticipantNameText.text != "")
         {
- SP.SetActive(false);
-        EQ.SetActive(true);
+            canvas.transform.Find("StartPage").gameObject.SetActive(false);
+            canvas.transform.Find("Example").gameObject.SetActive(true);
         LineDraw.GetComponent<DrawLine>().isFixed = false;
+            shouldLineDrawActive = true;
         }
        
         
         
     }
-    public void EQToQ1()
+    public void ExampleToTransition1()
     {
-        EQ.SetActive(false);
+        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        {
+ shouldLineDrawActive = false;
+        canvas.transform.Find("Example").gameObject.SetActive(false);
+        canvas.transform.Find("Transition1").gameObject.SetActive(true);
+        LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+           
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
+        }
+           
+
+    }
+    public void Transition1ToTraining1()
+    {
+       
+            shouldLineDrawActive = true;
+        canvas.transform.Find("Transition1").gameObject.SetActive(false);
+        canvas.transform.Find("Training1").gameObject.SetActive(true);
+        LineDraw.GetComponent<DrawLine>().isFixed = false;
+
+    }
+    public void showTraining1CorrectAnswer()
+    {
+        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        {
+            canvas.transform.Find("Training1").Find("correctAnswer").gameObject.SetActive(true);
+        canvas.transform.Find("Training1").Find("Reset").gameObject.SetActive(false);
+        canvas.transform.Find("Training1").Find("Continue").gameObject.SetActive(false);
+        Invoke("Training1ToTraining2", delayTime);
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
+        }
+    }
+    private void Training1ToTraining2()
+    {
+        LineDraw.GetComponent<DrawLine>().isFixed = false;
+        canvas.transform.Find("Training1").gameObject.SetActive(false);
+        canvas.transform.Find("Training2").gameObject.SetActive(true);
+    }
+    public void showTraining2CorrectAnswer()
+    {
+        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        {
+            canvas.transform.Find("Training2").Find("correctAnswer").gameObject.SetActive(true);
+        canvas.transform.Find("Training2").Find("Reset").gameObject.SetActive(false);
+        canvas.transform.Find("Training2").Find("Continue").gameObject.SetActive(false);
+        Invoke("Training2ToTraining3", delayTime);
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
+        }
+    }
+    private void Training2ToTraining3()
+    {
+        LineDraw.GetComponent<DrawLine>().isFixed = false;
+        canvas.transform.Find("Training2").gameObject.SetActive(false);
+        canvas.transform.Find("Training3").gameObject.SetActive(true);
+    }
+    public void showTraining3CorrectAnswer()
+    {
+        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        {
+            canvas.transform.Find("Training3").Find("correctAnswer").gameObject.SetActive(true);
+        canvas.transform.Find("Training3").Find("Reset").gameObject.SetActive(false);
+        canvas.transform.Find("Training3").Find("Continue").gameObject.SetActive(false);
+        Invoke("Training3ToTransition2", delayTime);
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
+        }
+    }
+    private void Training3ToTransition2()
+    {
+        LineDraw.GetComponent<DrawLine>().isFixed = false;
+        shouldLineDrawActive = false;
+        canvas.transform.Find("Training3").gameObject.SetActive(false);
+        canvas.transform.Find("Transition2").gameObject.SetActive(true);
+    }
+    public void Transition2ToQ1()
+    {
+        shouldLineDrawActive = true;
+        canvas.transform.Find("Transition2").gameObject.SetActive(false);
         Q1.SetActive(true);
         LineDraw.GetComponent<DrawLine>().isFixed = false;
     }
@@ -99,10 +234,18 @@ public class SwitchSOTQuestions : MonoBehaviour {
             Debug.Log("pointing angle = " + pointingAngle);
             Q1.SetActive(false);
             Q2.SetActive(true);
-            getTheData(123, 1);
+            getTheData(143, 1);
+         
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
-        
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
+        }
+
     }
     public void Q2ToQ3()
     {
@@ -112,8 +255,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             Debug.Log("pointing angle = " + pointingAngle);
             Q2.SetActive(false);
             Q3.SetActive(true);
-            getTheData(237, 2);
+            getTheData(249, 2);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q3ToQ4()
@@ -123,8 +273,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q3.SetActive(false);
             Q4.SetActive(true);
-            getTheData(83, 3);
+            getTheData(93, 3);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q4ToQ5()
@@ -134,8 +291,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q4.SetActive(false);
             Q5.SetActive(true);
-            getTheData(156, 4);
+            getTheData(165, 4);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q5ToQ6()
@@ -145,8 +309,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q5.SetActive(false);
             Q6.SetActive(true);
-            getTheData(319, 5);
+            getTheData(318, 5);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q6ToQ7()
@@ -156,8 +327,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q6.SetActive(false);
             Q7.SetActive(true);
-            getTheData(235, 6);
+            getTheData(250, 6);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q7ToQ8()
@@ -170,6 +348,13 @@ public class SwitchSOTQuestions : MonoBehaviour {
             getTheData(333, 7);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
+        }
     }
     public void Q8ToQ9()
     {
@@ -178,8 +363,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q8.SetActive(false);
             Q9.SetActive(true);
-            getTheData(260, 8);
+            getTheData(268, 8);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q9ToQ10()
@@ -189,8 +381,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q9.SetActive(false);
             Q10.SetActive(true);
-            getTheData(280, 9);
+            getTheData(266, 9);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q10ToQ11()
@@ -200,8 +399,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q10.SetActive(false);
             Q11.SetActive(true);
-            getTheData(48, 10);
+            getTheData(41, 10);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q11ToQ12()
@@ -211,8 +417,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q11.SetActive(false);
             Q12.SetActive(true);
-            getTheData(26, 11);
+            getTheData(25, 11);
             LineDraw.GetComponent<DrawLine>().isFixed = false;
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
     public void Q12ToEnd()
@@ -220,9 +433,24 @@ public class SwitchSOTQuestions : MonoBehaviour {
         if (LineDraw.GetComponent<DrawLine>().isFixed == true)
         {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
-            getTheData(150, 12);
-           UnityEditor.EditorApplication.isPlaying = false;
-           // Application.Quit();
+            getTheData(151, 12);
+
+           // string filePath = @"Assets/Resource/SOT_saved_data.csv";
+            string filePath =  Application.dataPath + "/ExperimentData/SOT_saved_data.csv"; 
+            File.AppendAllText(filePath, ParticipantNameText.text
++ "," + "Finished round" + "," +
+finishedRound.ToString() + "," + "Average" + ","
++ (totalAngularError / finishedRound).ToString() + "\n");
+
+           // UnityEditor.EditorApplication.isPlaying = false;
+             Application.Quit();
+        }
+        else
+        {
+
+            shouldLineDrawActive = false;
+            Canvas1.gameObject.SetActive(true);
+            canvas.SetActive(false);
         }
     }
 
@@ -232,11 +460,32 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     void getTheData(float correctAngle, int questionNumber)
     {
-        string filePath = @"Assets/Resource/SOT_saved_data.csv";
-        //string filePath =  Application.dataPath + "/ExperimentData/SOT_saved_data.csv"; 
+        finishedRound++;
+        //string filePath = @"Assets/Resource/SOT_saved_data.csv";
+        string filePath =  Application.dataPath + "/ExperimentData/SOT_saved_data.csv"; 
+        float angularError = 0;
+        if (Mathf.Abs((int)LineDraw.GetComponent<DrawLine>().Angle - (int)correctAngle) > 180){
+            angularError = 360 - Mathf.Abs((int)LineDraw.GetComponent<DrawLine>().Angle - (int)correctAngle);
+        }
+        else
+        {
+            angularError = Mathf.Abs((int)LineDraw.GetComponent<DrawLine>().Angle - (int)correctAngle);
+        }
+        totalAngularError = totalAngularError + (int)angularError;
         File.AppendAllText(filePath, ParticipantNameText.text
             + "," + questionNumber.ToString() + "," +
             pointingAngle.ToString() + "," + ((int)correctAngle).ToString() + ","
-          + (Mathf.Abs((int)LineDraw.GetComponent<DrawLine>().Angle - (int)correctAngle)).ToString() + "\n");
+          + angularError.ToString() + "\n");
     }
+    public void OK()
+    {
+        canvas.SetActive(true);
+        shouldLineDrawActive = true;
+        Canvas1.gameObject.SetActive(false);
+    }
+
+
+
+
+
 }
