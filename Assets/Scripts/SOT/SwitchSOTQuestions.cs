@@ -34,11 +34,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     public GameObject canvas;
     public float delayTime = 1f;
     public int finishedRound = 0;
-    public int totalAngularError = 0; 
+    public int totalAngularError = 0;
+    private string filePath;
     private void Start()
     {
         startTime = 0f;
         countForTimer = 0;
+         filePath = @"Assets/Resource/SOT_saved_data.csv";
+      //filePath = Application.dataPath + "/ExperimentData/SOT_saved_data.csv";
     }
     private void Update()
     {
@@ -77,8 +80,7 @@ public class SwitchSOTQuestions : MonoBehaviour {
             }
             if (min == 0 && seconds < 1)
             {
-                    //string filePath = @"Assets/Resource/SOT_saved_data.csv";
-                    string filePath =  Application.dataPath + "/ExperimentData/SOT_saved_data.csv"; 
+                  
 
                     for (int i = finishedRound+1; i < 13; i++)
                     {
@@ -95,8 +97,8 @@ public class SwitchSOTQuestions : MonoBehaviour {
       finishedRound.ToString() + "," + "Average" + ","
     + (totalAngularError/finishedRound).ToString() + "\n");
 
-                  //  UnityEditor.EditorApplication.isPlaying = false;
-                Application.Quit();
+                   UnityEditor.EditorApplication.isPlaying = false;
+               // Application.Quit();
             }
 
         }
@@ -435,15 +437,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             getTheData(151, 12);
 
-           // string filePath = @"Assets/Resource/SOT_saved_data.csv";
-            string filePath =  Application.dataPath + "/ExperimentData/SOT_saved_data.csv"; 
+        
             File.AppendAllText(filePath, ParticipantNameText.text
 + "," + "Finished round" + "," +
 finishedRound.ToString() + "," + "Average" + ","
 + (totalAngularError / finishedRound).ToString() + "\n");
 
-           // UnityEditor.EditorApplication.isPlaying = false;
-             Application.Quit();
+            UnityEditor.EditorApplication.isPlaying = false;
+           //  Application.Quit();
         }
         else
         {
@@ -461,8 +462,7 @@ finishedRound.ToString() + "," + "Average" + ","
     void getTheData(float correctAngle, int questionNumber)
     {
         finishedRound++;
-        //string filePath = @"Assets/Resource/SOT_saved_data.csv";
-        string filePath =  Application.dataPath + "/ExperimentData/SOT_saved_data.csv"; 
+     
         float angularError = 0;
         if (Mathf.Abs((int)LineDraw.GetComponent<DrawLine>().Angle - (int)correctAngle) > 180){
             angularError = 360 - Mathf.Abs((int)LineDraw.GetComponent<DrawLine>().Angle - (int)correctAngle);
