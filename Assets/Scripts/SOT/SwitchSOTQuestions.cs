@@ -36,16 +36,21 @@ public class SwitchSOTQuestions : MonoBehaviour {
     public int finishedRound = 0;
     public int totalAngularError = 0;
     private string filePath;
+    public string CurrentQuestionName;
     private void Start()
     {
+        CurrentQuestionName = "null";
         startTime = 0f;
         countForTimer = 0;
-         filePath = @"Assets/Resource/SOT_saved_data.csv";
-      //filePath = Application.dataPath + "/ExperimentData/SOT_saved_data.csv";
+       // filePath = @"Assets/Resource/SOT_saved_data.csv";
+      filePath = Application.dataPath + "/ExperimentData/SOT_saved_data.csv";
     }
     private void Update()
     {
-
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true && CurrentQuestionName != "null")
+        {
+            canvas.transform.Find(CurrentQuestionName).Find("Continue").gameObject.SetActive(true);
+        }
         if (!shouldLineDrawActive)
         {
             LineDraw.SetActive(false);
@@ -97,8 +102,8 @@ public class SwitchSOTQuestions : MonoBehaviour {
       finishedRound.ToString() + "," + "Average" + ","
     + (totalAngularError/finishedRound).ToString() + "\n");
 
-                   UnityEditor.EditorApplication.isPlaying = false;
-               // Application.Quit();
+                  // UnityEditor.EditorApplication.isPlaying = false;
+                Application.Quit();
             }
 
         }
@@ -118,6 +123,7 @@ public class SwitchSOTQuestions : MonoBehaviour {
             canvas.transform.Find("Example").gameObject.SetActive(true);
         LineDraw.GetComponent<DrawLine>().isFixed = false;
             shouldLineDrawActive = true;
+            CurrentQuestionName = "Example";
         }
        
         
@@ -125,12 +131,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void ExampleToTransition1()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
- shouldLineDrawActive = false;
+            CurrentQuestionName = "null";
+            shouldLineDrawActive = false;
         canvas.transform.Find("Example").gameObject.SetActive(false);
         canvas.transform.Find("Transition1").gameObject.SetActive(true);
         LineDraw.GetComponent<DrawLine>().isFixed = false;
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
         }
         else
         {
@@ -144,8 +152,8 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Transition1ToTraining1()
     {
-       
-            shouldLineDrawActive = true;
+        CurrentQuestionName = "Training1";
+        shouldLineDrawActive = true;
         canvas.transform.Find("Transition1").gameObject.SetActive(false);
         canvas.transform.Find("Training1").gameObject.SetActive(true);
         LineDraw.GetComponent<DrawLine>().isFixed = false;
@@ -153,12 +161,16 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void showTraining1CorrectAnswer()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "null";
+            LineDraw.GetComponent<DrawLine>().enabled = false;
             canvas.transform.Find("Training1").Find("correctAnswer").gameObject.SetActive(true);
         canvas.transform.Find("Training1").Find("Reset").gameObject.SetActive(false);
         canvas.transform.Find("Training1").Find("Continue").gameObject.SetActive(false);
+          
         Invoke("Training1ToTraining2", delayTime);
+            
         }
         else
         {
@@ -170,17 +182,24 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     private void Training1ToTraining2()
     {
+        CurrentQuestionName = "Training2";
+        LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
+        LineDraw.GetComponent<DrawLine>().enabled = true;
         LineDraw.GetComponent<DrawLine>().isFixed = false;
         canvas.transform.Find("Training1").gameObject.SetActive(false);
         canvas.transform.Find("Training2").gameObject.SetActive(true);
+       
     }
     public void showTraining2CorrectAnswer()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "null";
+            LineDraw.GetComponent<DrawLine>().enabled = false;
             canvas.transform.Find("Training2").Find("correctAnswer").gameObject.SetActive(true);
         canvas.transform.Find("Training2").Find("Reset").gameObject.SetActive(false);
         canvas.transform.Find("Training2").Find("Continue").gameObject.SetActive(false);
+         
         Invoke("Training2ToTraining3", delayTime);
         }
         else
@@ -193,17 +212,23 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     private void Training2ToTraining3()
     {
+        CurrentQuestionName = "Training3";
+        LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
+        LineDraw.GetComponent<DrawLine>().enabled = true;
         LineDraw.GetComponent<DrawLine>().isFixed = false;
         canvas.transform.Find("Training2").gameObject.SetActive(false);
         canvas.transform.Find("Training3").gameObject.SetActive(true);
     }
     public void showTraining3CorrectAnswer()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "null";
+            LineDraw.GetComponent<DrawLine>().enabled = false;
             canvas.transform.Find("Training3").Find("correctAnswer").gameObject.SetActive(true);
         canvas.transform.Find("Training3").Find("Reset").gameObject.SetActive(false);
         canvas.transform.Find("Training3").Find("Continue").gameObject.SetActive(false);
+           
         Invoke("Training3ToTransition2", delayTime);
         }
         else
@@ -216,6 +241,9 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     private void Training3ToTransition2()
     {
+
+        LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
+        LineDraw.GetComponent<DrawLine>().enabled = true;
         LineDraw.GetComponent<DrawLine>().isFixed = false;
         shouldLineDrawActive = false;
         canvas.transform.Find("Training3").gameObject.SetActive(false);
@@ -223,21 +251,24 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Transition2ToQ1()
     {
+        CurrentQuestionName = "Q1";
         shouldLineDrawActive = true;
         canvas.transform.Find("Transition2").gameObject.SetActive(false);
         Q1.SetActive(true);
         LineDraw.GetComponent<DrawLine>().isFixed = false;
+        LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
     }
     public void Q1ToQ2()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q2";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Debug.Log("pointing angle = " + pointingAngle);
             Q1.SetActive(false);
             Q2.SetActive(true);
             getTheData(143, 1);
-         
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -251,13 +282,15 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q2ToQ3()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q3";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Debug.Log("pointing angle = " + pointingAngle);
             Q2.SetActive(false);
             Q3.SetActive(true);
             getTheData(249, 2);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -270,12 +303,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q3ToQ4()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q4";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q3.SetActive(false);
             Q4.SetActive(true);
             getTheData(93, 3);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -288,12 +323,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q4ToQ5()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q5";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q4.SetActive(false);
             Q5.SetActive(true);
             getTheData(165, 4);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -306,12 +343,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q5ToQ6()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q6";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q5.SetActive(false);
             Q6.SetActive(true);
             getTheData(318, 5);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -324,12 +363,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q6ToQ7()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q7";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q6.SetActive(false);
             Q7.SetActive(true);
             getTheData(250, 6);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -342,12 +383,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q7ToQ8()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q8";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q7.SetActive(false);
             Q8.SetActive(true);
             getTheData(333, 7);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -360,12 +403,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q8ToQ9()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q9";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q8.SetActive(false);
             Q9.SetActive(true);
             getTheData(268, 8);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -378,12 +423,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q9ToQ10()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q10";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q9.SetActive(false);
             Q10.SetActive(true);
             getTheData(266, 9);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -396,12 +443,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q10ToQ11()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q11";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q10.SetActive(false);
             Q11.SetActive(true);
             getTheData(41, 10);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -414,12 +463,14 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q11ToQ12()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "Q12";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             Q11.SetActive(false);
             Q12.SetActive(true);
             getTheData(25, 11);
+            LineDraw.GetComponent<DrawLine>().isReadyToContinue = false;
             LineDraw.GetComponent<DrawLine>().isFixed = false;
         }
         else
@@ -432,8 +483,9 @@ public class SwitchSOTQuestions : MonoBehaviour {
     }
     public void Q12ToEnd()
     {
-        if (LineDraw.GetComponent<DrawLine>().isFixed == true)
+        if (LineDraw.GetComponent<DrawLine>().isReadyToContinue == true)
         {
+            CurrentQuestionName = "null";
             pointingAngle = (int)LineDraw.GetComponent<DrawLine>().Angle; // valid input
             getTheData(151, 12);
 
@@ -443,8 +495,8 @@ public class SwitchSOTQuestions : MonoBehaviour {
 finishedRound.ToString() + "," + "Average" + ","
 + (totalAngularError / finishedRound).ToString() + "\n");
 
-            UnityEditor.EditorApplication.isPlaying = false;
-           //  Application.Quit();
+           // UnityEditor.EditorApplication.isPlaying = false;
+             Application.Quit();
         }
         else
         {

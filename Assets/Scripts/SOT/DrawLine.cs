@@ -24,12 +24,13 @@ public class DrawLine : MonoBehaviour {
     public float Angle;
     private Vector3 fixedEndPosition;
     public bool isFixed;
+    public bool isReadyToContinue;
     
 
     public float lineDrawSpeed;
     public Transform ButtonTopLeftPivot;
     public Transform ButtonBottomRightPivot;
-
+    RaycastHit hit;
     // Use this for initialization
     void Start()
     {
@@ -38,13 +39,14 @@ public class DrawLine : MonoBehaviour {
         lineRender.endColor = Color.black;
         Angle = 0f;
         fixedEndPosition = new Vector3();
-        
+        isReadyToContinue = false;
         isFixed = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         if ((!(Camera.main.ScreenToWorldPoint(Input.mousePosition).x > ButtonTopLeftPivot.position.x &&
             Camera.main.ScreenToWorldPoint(Input.mousePosition).x < ButtonBottomRightPivot.position.x &&
              Camera.main.ScreenToWorldPoint(Input.mousePosition).y < ButtonTopLeftPivot.position.y &&
@@ -133,7 +135,8 @@ public class DrawLine : MonoBehaviour {
                 lineRender.SetPosition(1, pointAlongLine);
             }
 
-            if (Input.GetMouseButtonDown(0))
+        
+            if (Input.GetMouseButtonUp(0))
             {
                 Debug.Log("Angle = " + Angle);
                 isFixed = true;
@@ -144,8 +147,15 @@ public class DrawLine : MonoBehaviour {
 
                 Vector3 pointAlongLine = x * Vector3.Normalize(pointB - pointA) + pointA;
                 lineRender.SetPosition(1, pointAlongLine);
-
+                isReadyToContinue = true;
             }
         }
+        if (Input.GetMouseButtonDown(0))
+        {
+            
+            isFixed = false;
+       
+        }
+       
     }
 }
