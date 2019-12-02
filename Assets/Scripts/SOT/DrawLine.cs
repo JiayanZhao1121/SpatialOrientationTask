@@ -25,6 +25,7 @@ public class DrawLine : MonoBehaviour {
     private Vector3 fixedEndPosition;
     public bool isFixed;
     public bool isReadyToContinue;
+    public GameObject PivotForLineDraw;
     
 
     public float lineDrawSpeed;
@@ -150,7 +151,7 @@ public class DrawLine : MonoBehaviour {
                 isReadyToContinue = true;
             }
         }
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && Camera.main.ScreenToWorldPoint(Input.mousePosition).x < PivotForLineDraw.transform.position.x)
         {
             
             isFixed = false;
